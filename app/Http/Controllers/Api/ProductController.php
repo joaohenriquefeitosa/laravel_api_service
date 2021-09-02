@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateProductFormRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
     private $product, $total_page = 10;
+    private $path = 'products';
 
     public function __construct(Product $product)
     {
@@ -45,7 +47,7 @@ class ProductController extends Controller
             $nameFile = "{$name}.{$extension}";
             $data['image'] = $nameFile;
 
-            $upload = $request->image->storeAs('products', $nameFile);
+            $upload = $request->image->storeAs($this->path, $nameFile);
             if(!$upload)
                 return response()->json(['error' => 'Fail_Upload'], 500);
         }
@@ -79,8 +81,29 @@ class ProductController extends Controller
     {
         if(!$product = $this->product->find($id))
             return response()->json(['error' => 'Not found'], 404);
+
+        $data = $request->all();
+        // dd($data);
+
+        if($request->hasFile('image') && $request->file('image')->isValid()){
+            if($product->image){
+                if(Storage::exists("{$this->path}/{$product->image}")){
+                    Storage::delete("{$this->path}/{$product->image}");
+                }
+            }
+
+            $name = time() + (7 * 24 * 60 * 60) . rand(100,999);
+            $extension = $request->image->extension();
+
+            $nameFile = "{$name}.{$extension}";
+            $data['image'] = $nameFile;
+
+            $upload = $request->image->storeAs($this->path, $nameFile);
+            if(!$upload)
+                return response()->json(['error' => 'Fail_Upload'], 500);
+        }
         
-        $product->update($request->all());
+        $product->update($data);
         return response()->json($product);
     }
 
@@ -90,10 +113,17 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function delete($id)
     {
         if(!$product = $this->product->find($id))
             return response()->json(['error' => 'Not found'], 404);
+
+  
+        if($product->image){
+            if(Storage::exists("{$this->path}/{$product->image}")){
+                Storage::delete("{$this->path}/{$product->image}");
+            }
+        }
 
         $product->delete();
 
