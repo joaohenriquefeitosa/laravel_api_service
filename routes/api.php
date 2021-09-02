@@ -23,4 +23,10 @@ Route::post('categories', [App\Http\Controllers\Api\CategoryController::class, '
 Route::put('categories/{id}', [App\Http\Controllers\Api\CategoryController::class, 'update']);
 Route::delete('categories/{id}', [App\Http\Controllers\Api\CategoryController::class, 'delete']);
 
-Route::apiResource('products', 'App\Http\Controllers\Api\ProductController');
+Route::get('products', [App\Http\Controllers\Api\ProductController::class, 'index']);
+Route::get('products/{id}', [App\Http\Controllers\Api\ProductController::class, 'show']);
+Route::post('products', [App\Http\Controllers\Api\ProductController::class, 'store']);
+Route::put('products/{id}', [App\Http\Controllers\Api\ProductController::class, 'update']);
+Route::delete('products/{id}', [App\Http\Controllers\Api\ProductController::class, 'delete']);
+
+

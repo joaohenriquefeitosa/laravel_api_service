@@ -35,7 +35,22 @@ class ProductController extends Controller
      */
     public function store(StoreUpdateProductFormRequest $request)
     {
-        $product = $this->product->create($request->all());
+        $data = $request->all();
+        
+
+        if($request->hasFile('image') && $request->file('image')->isValid()){
+            $name = time() + (7 * 24 * 60 * 60) . rand(100,999);
+            $extension = $request->image->extension();
+
+            $nameFile = "{$name}.{$extension}";
+            $data['image'] = $nameFile;
+
+            $upload = $request->image->storeAs('products', $nameFile);
+            if(!$upload)
+                return response()->json(['error' => 'Fail_Upload'], 500);
+        }
+
+        $product = $this->product->create($data);
         return response()->json($product, 201);
     }
 
