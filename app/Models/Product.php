@@ -35,4 +35,9 @@ class Product extends Model
             }
         })->paginate($total);
     }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'categoria_id', 'id');
+    }
 }
